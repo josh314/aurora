@@ -44,14 +44,8 @@ public class Crawler {
         this.processing.add(f);
     }
 
-    private boolean notDone() {
-        boolean res = true;
-        if(this.queue.isEmpty()) {
-            for(Future<Response> f: this.processing) {
-                res &= f.isDone();
-            }
-        }
-        return res;
+    private boolean notDone() {//Done when both queue and processing are empty 
+        return !(this.queue.isEmpty() & this.processing.isEmpty());
     }
     
     public void crawl() {
@@ -59,8 +53,17 @@ public class Crawler {
             this.request(url);
         }
         this.queue.clear();
-        while(this.notDone()) {}
-        this.client.close();
+        while(this.notDone()) {
+            HashSet<Future<Response>> done = new HashSet<Future<Response>>();//TODO:Initial size?
+            for(Future<Response> f: this.processing) {
+                if(f.isDone())
+                    done.add(f);
+            }
+            for(Future<Response> f: done) {
+                this.processing.remove(f);
+            }
+        }
+        this.client.close();        
     }
 
     public void print()
