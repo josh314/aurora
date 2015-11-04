@@ -7,7 +7,8 @@ public class TestCrawl
         System.out.println("Starting TestCrawl.");
         String[] initial_queue = {
             "http://www.google.com/",
-            "http://bfttyfgfhjfghjgjkghg.com/"
+            "http://bfttyfgfhjfghjgjkghg.com/",
+            "http://www.cnn.com/"
         };
         
         Crawler crawlBaby = new Crawler(initial_queue);

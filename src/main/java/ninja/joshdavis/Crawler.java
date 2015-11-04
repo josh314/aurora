@@ -1,43 +1,47 @@
 package ninja.joshdavis;
 
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
-import org.jsoup.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
+
+import com.ning.http.client.*;
 
 public class Crawler {
-    private ArrayList<URL> queue;
+    private ArrayList<String> queue;
+    private AsyncHttpClient client;
 
     public Crawler(String[] _queue) {
-        this.queue = new ArrayList<URL>(_queue.length);
-        try {
-            for(int i=0; i < _queue.length; ++i) {
-                queue.add(new URL(_queue[i]));
-            }
-        } catch (MalformedURLException e) {
-            e.printStackTrace(System.err);
-        }        
-    }
-    public Crawler(ArrayList<URL> _queue) {
-        queue = _queue;
-    }
-
-
-    private void request(URL url) {
-        try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null)
-                System.out.println(inputLine);
-            in.close();
-        } 
-        catch (IOException e) {   
-            System.out.println("Could not find url: " + url);
+        this.queue = new ArrayList<String>(_queue.length);
+        for(int i=0; i < _queue.length; ++i) {
+            queue.add(_queue[i]);
         }
+        this.client = new AsyncHttpClient();
+    }
+    public Crawler(ArrayList<String> _queue) {
+        queue = _queue;//Copy it?
+    }
+
+    private void request(String url) {
+        this.client.prepareGet(url).execute(new AsyncCompletionHandler<Response>(){ 
+                @Override
+                public Response onCompleted(Response response) throws Exception{
+                    // Do something with the Response
+                    // ...
+                    System.out.println("Request completed: " + response.getUri());
+                    return response;
+                }
+                
+                @Override
+                public void onThrowable(Throwable t){
+                    // Something wrong happened.
+                    System.out.println(t);
+                }
+            });
     }
     
     public void crawl() {
-        for(URL url : this.queue) {
+        for(String url : this.queue) {
             this.request(url);
         }
     }
