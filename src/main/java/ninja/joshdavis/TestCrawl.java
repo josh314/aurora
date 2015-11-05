@@ -7,9 +7,13 @@ public class TestCrawl
         System.out.println("Starting TestCrawl.");
         String[] initial_queue = {
             "http://www.google.com/",
-            "http://www.bfttyfgfhjfghjgjkghg.com/",
             "http://www.cnn.com/",
             "http://www.wikipedia.org/wiki/Barack_Obama",
+            "http://www.wikipedia.org/wiki/Mathematics",
+            "http://www.wikipedia.org/wiki/Daredevil",
+            "http://www.wikipedia.org/wiki/Star",
+            "http://www.wikipedia.org/wiki/Java",
+            "http://www.wikipedia.org/",
             "http://www.arxiv.org",
             "http://www.amazon.com",
             "http://www.hockeybuzz.com"
