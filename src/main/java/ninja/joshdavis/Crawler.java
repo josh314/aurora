@@ -12,17 +12,21 @@ public class Crawler {
     private AsyncHttpClient client;
     private HashSet<Future<Response>> processing;
 
-    public Crawler(String[] _queue) {
+    public Crawler(String[] _queue, int max_conn) {
         this.queue = new HashSet<String>(_queue.length);
         for(int i=0; i < _queue.length; ++i) {
             queue.add(_queue[i]);
         }
 
-        this.client = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setMaxConnections(30).build());
+        this.client = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setMaxConnections(max_conn).build());
 
         this.processing = new HashSet<Future<Response>>(_queue.length);
     }
 
+    public Crawler(String[] _queue) {
+        this(_queue, 30);
+    }
+    
     private void request(String url) {
         Future<Response> f = this.client.prepareGet(url).execute(new AsyncCompletionHandler<Response>(){ 
                 @Override
