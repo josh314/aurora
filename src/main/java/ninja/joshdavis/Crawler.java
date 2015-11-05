@@ -17,11 +17,10 @@ public class Crawler {
         for(int i=0; i < _queue.length; ++i) {
             queue.add(_queue[i]);
         }
-        this.client = new AsyncHttpClient();
+
+        this.client = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setMaxConnections(30).build());
+
         this.processing = new HashSet<Future<Response>>(_queue.length);
-    }
-    public Crawler(HashSet<String> _queue) {
-        queue = new HashSet<String>(_queue);
     }
 
     private void request(String url) {
