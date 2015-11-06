@@ -8,6 +8,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.ning.http.client.*;
 import com.ning.http.client.extra.*;
+import org.jsoup.*;
+import org.jsoup.nodes.*;
+import org.jsoup.select.*;
 
 public class Crawler {
     private AsyncHttpClient client;
@@ -16,16 +19,31 @@ public class Crawler {
     private HashSet<Future<Response>> processing;
     
     class ThrottledHandler extends AsyncCompletionHandler<Response>{
+        String url;
+        public ThrottledHandler(String _url) {
+            url = _url;   
+        }
         @Override
         public Response onCompleted(Response response) throws Exception{
             // Do something with the Response
             // ...
-            System.out.println("Request completed: " + response.getUri());
+            String url = response.getUri().toString();
+            String html = response.getResponseBody();
+            Document doc = Jsoup.parse(html, url);
+            Elements links = doc.select("a[href]");
+            for(Element link: links) {
+                String link_url;
+                if((link_url = link.attr("href")) != null) {
+                    enqueue_request(link_url);
+                }
+            }
+            System.out.println("Request completed: " + url);
             return response;
         }
                 
         @Override
         public void onThrowable(Throwable t){
+            System.out.println("Failed: " + url);
             System.out.println(t);
         }
     }
@@ -54,8 +72,9 @@ public class Crawler {
         }
     }
     
-    private void request(String url) {        
-        Future<Response> f = this.client.prepareGet(url).execute(new ThrottledHandler());
+    private void request(String url) {
+        System.out.println("Requesting: "+url);
+        Future<Response> f = this.client.prepareGet(url).execute(new ThrottledHandler(url));
         processing.add(f);
     }
 
