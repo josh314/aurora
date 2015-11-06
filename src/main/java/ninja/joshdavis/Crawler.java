@@ -34,7 +34,7 @@ public class Crawler {
             Elements links = doc.select("a[href]");
             for(Element link: links) {
                 String link_url;
-                if((link_url = link.attr("href")) != null) {
+                if((link_url = link.attr("abs:href")) != null) {
                     enqueue_request(link_url);
                 }
             }
