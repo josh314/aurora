@@ -1,10 +1,13 @@
 package ninja.joshdavis;
 
+import java.util.Vector;
+import java.util.Arrays;
+
 public class TestCrawl
 {
     public static void main(String[] args)
     {
-        System.out.println("Starting TestCrawl.");
+
         String[] initial_queue = {
             "http://www.google.com/",
             "http://www.cnn.com/",
@@ -19,7 +22,9 @@ public class TestCrawl
             "http://www.hockeybuzz.com"
         };
         
-        Crawler crawlBaby = new Crawler(initial_queue);
+        System.out.println("Starting test crawl.");
+        Vector<String> urls = new Vector<String>(Arrays.asList(initial_queue));
+        Crawler crawlBaby = new Crawler(urls);
         crawlBaby.crawl();
     }
 }

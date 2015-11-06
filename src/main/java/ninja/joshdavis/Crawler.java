@@ -1,6 +1,7 @@
 package ninja.joshdavis;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
@@ -48,7 +49,7 @@ public class Crawler {
         }
     }
     
-    public Crawler(String[] urls) {
+    public Crawler(Collection<String> urls) {
         //Create the client
 
         AsyncHttpClientConfig.Builder b = new AsyncHttpClientConfig.Builder().addRequestFilter(new ThrottleRequestFilter(100));
@@ -56,12 +57,12 @@ public class Crawler {
 
         //Init book-keeping data structures
         queue = new ConcurrentLinkedQueue<String>();
-        seen = new HashSet<String>(urls.length);
-        processing = new HashSet<Future<Response>>(urls.length);
+        seen = new HashSet<String>(urls.size());
+        processing = new HashSet<Future<Response>>(urls.size());
 
         //Fill the to-be-scheduled queue with initial inputs
-        for(int i=0; i < urls.length; ++i) {
-            enqueue_request(urls[i]);
+        for(String url: urls) {
+            enqueue_request(url);
         }
     }
 
