@@ -1,6 +1,5 @@
 package ninja.joshdavis;
 
-
 import java.util.*;
 import java.io.*;
 import java.nio.file.Paths;
@@ -9,12 +8,8 @@ import java.nio.file.Paths;
 
 public class TestCrawl
 {
-    public static void main(String[] args)
-    {
-
-        Vector<String> urls = new Vector<String>();
+    public static void add_urls_from_file(Vector<String> urls, String filename) {
         // Open file, read line by line and put contents into Vector
-        String filename = "initial_urls.txt";
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -26,6 +21,14 @@ public class TestCrawl
         }
         catch (IOException e) {
             System.out.println(e);
+        }
+    }
+    public static void main(String[] args)
+    {
+        Vector<String> urls = new Vector<String>();
+        
+        for(String file: args) {
+            add_urls_from_file(urls, file);
         }
         
         System.out.println("Starting test crawl.");
