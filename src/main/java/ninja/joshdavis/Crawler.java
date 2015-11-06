@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.ning.http.client.*;
+import com.ning.http.client.extra.*;
 
 public class Crawler {
     private AsyncHttpClient client;
@@ -14,11 +15,7 @@ public class Crawler {
     private HashSet<String> seen;
     private HashSet<Future<Response>> processing;
     
-    class BusyHandler extends AsyncCompletionHandler<Response>{
-        private String url;
-        public BusyHandler(String _url) {
-            url = _url;
-        }
+    class ThrottledHandler extends AsyncCompletionHandler<Response>{
         @Override
         public Response onCompleted(Response response) throws Exception{
             // Do something with the Response
@@ -29,15 +26,15 @@ public class Crawler {
                 
         @Override
         public void onThrowable(Throwable t){
-            //System.out.println(t);
-            //            System.out.println("Retrying: " + url);
-            queue.add(url);
+            System.out.println(t);
         }
     }
     
     public Crawler(String[] urls) {
         //Create the client
-        client = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setMaxConnections(3).setMaxConnectionsPerHost(1).build());
+
+        AsyncHttpClientConfig.Builder b = new AsyncHttpClientConfig.Builder().addRequestFilter(new ThrottleRequestFilter(100));
+        client = new AsyncHttpClient(b.build());
 
         //Init book-keeping data structures
         queue = new ConcurrentLinkedQueue<String>();
@@ -58,7 +55,7 @@ public class Crawler {
     }
     
     private void request(String url) {        
-        Future<Response> f = this.client.prepareGet(url).execute(new BusyHandler(url));
+        Future<Response> f = this.client.prepareGet(url).execute(new ThrottledHandler());
         processing.add(f);
     }
 
@@ -68,7 +65,6 @@ public class Crawler {
 
     private void schedule_next_request() {
         String url = queue.poll();
-        System.out.println("Scheduling: " + url);
         if(url != null) {
             request(url);
         }
@@ -87,17 +83,17 @@ public class Crawler {
     
     public void crawl() {
         while(notDone()) {
-            print();
+            //print_status();
             schedule_next_request();
             cleanup_finished_tasks();
         }
         client.close();        
     }
 
-    public void print()
+    public void print_status()
     {
         System.out.println("In queue: " + queue.size());
-        System.out.println("In processing: " + processing.size());
-        System.out.println("In seen: " + seen.size());
+        System.out.println("In process: " + processing.size());
+        System.out.println("Have seen: " + seen.size());
     }
 }
