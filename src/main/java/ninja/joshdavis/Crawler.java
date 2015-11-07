@@ -30,8 +30,8 @@ public class Crawler {
             Document doc = Jsoup.parse(html, url);
             Elements links = doc.select("a[href]");
             for(Element link: links) {
-                String link_url;
-                if((link_url = link.attr("abs:href")) != null) {
+                String link_url = link.attr("abs:href");
+                if(link_url != null) {
                     enqueue_request(link_url);
                 }
             }
@@ -48,7 +48,6 @@ public class Crawler {
     
     public Crawler(Collection<String> urls) {
         //Create the client
-
         AsyncHttpClientConfig.Builder b = new AsyncHttpClientConfig.Builder().addRequestFilter(new ThrottleRequestFilter(100));
         client = new AsyncHttpClient(b.build());
 
@@ -88,7 +87,7 @@ public class Crawler {
     }
 
     private void cleanup_finished_tasks() {
-        HashSet<Future<Response>> done = new HashSet<Future<Response>>();//TODO:Initial size?
+        HashSet<Future<Response>> done = new HashSet<Future<Response>>();
         for(Future<Response> f: processing) {
             if(f.isDone())
                 done.add(f);
@@ -100,7 +99,6 @@ public class Crawler {
     
     public void crawl() {
         while(notDone()) {
-            //print_status();
             schedule_next_request();
             cleanup_finished_tasks();
         }
