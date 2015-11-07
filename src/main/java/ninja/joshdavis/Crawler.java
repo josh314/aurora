@@ -26,9 +26,6 @@ public class Crawler {
         }
         @Override
         public Response onCompleted(Response response) throws Exception{
-            // Do something with the Response
-            // ...
-            String url = response.getUri().toString();
             String html = response.getResponseBody();
             Document doc = Jsoup.parse(html, url);
             Elements links = doc.select("a[href]");
