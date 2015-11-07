@@ -80,10 +80,11 @@ public class Crawler {
     }
 
     private void schedule_next_request() {
-        String url = queue.poll();
+        String url = queue.peek();
         if(url != null) {
             request(url);
         }
+        queue.poll();
     }
 
     private void cleanup_finished_tasks() {
