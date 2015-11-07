@@ -102,6 +102,11 @@ public class Crawler {
         while(notDone()) {
             schedule_next_request();
             cleanup_finished_tasks();
+            try{
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
         }
         client.close();        
     }
