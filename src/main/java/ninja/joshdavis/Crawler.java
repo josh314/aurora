@@ -9,16 +9,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.ning.http.client.*;
 import com.ning.http.client.extra.*;
-import org.jsoup.*;
-import org.jsoup.nodes.*;
-import org.jsoup.select.*;
 
 public class Crawler {
     private AsyncHttpClient client;
     private ConcurrentLinkedQueue<String> queue;
     private HashSet<String> seen;
     private HashSet<Future<Response>> processing;
-    
+    private Scraper scraper;
+
+    //Class containing the callbacks for processing responses and errors
     class ThrottledHandler extends AsyncCompletionHandler<Response>{
         String url;
         
@@ -26,12 +25,10 @@ public class Crawler {
             url = _url;   
         }
         @Override
-        public Response onCompleted(Response response) throws Exception{
+        public Response onCompleted(Response response) throws Exception {
             String html = response.getResponseBody();
-            Document doc = Jsoup.parse(html, url);
-            Elements links = doc.select("a[href]");
-            for(Element link: links) {
-                String link_url = link.attr("abs:href");
+            Iterable<String> links = scraper.process(html, url);
+            for(String link_url: links) {
                 if(link_url != null) {
                     enqueue_request(link_url);
                 }
@@ -46,11 +43,14 @@ public class Crawler {
         }
     }
     
-    public Crawler(Collection<String> urls) {
+    public Crawler(Collection<String> urls, Scraper _scraper) {
         //Create the client
         AsyncHttpClientConfig.Builder b = new AsyncHttpClientConfig.Builder().addRequestFilter(new ThrottleRequestFilter(100));
         client = new AsyncHttpClient(b.build());
 
+        //Set scraper
+        scraper = _scraper;
+        
         //Init book-keeping data structures
         queue = new ConcurrentLinkedQueue<String>();
         seen = new HashSet<String>(urls.size());
@@ -62,6 +62,7 @@ public class Crawler {
         }
     }
 
+    //
     private void enqueue_request(String url) {
         if(!seen.contains(url)) {
             seen.add(url);
@@ -75,7 +76,8 @@ public class Crawler {
         processing.add(f);
     }
 
-    private boolean notDone() {//Done when both queue and processing are empty 
+    //Done when both queue and processing are empty 
+    private boolean notDone() {
         return !(queue.isEmpty() & processing.isEmpty());
     }
 
@@ -87,6 +89,7 @@ public class Crawler {
         queue.poll();
     }
 
+    // Removes resolved futures from the in-process list
     private void cleanup_finished_tasks() {
         HashSet<Future<Response>> done = new HashSet<Future<Response>>();
         for(Future<Response> f: processing) {
