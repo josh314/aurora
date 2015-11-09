@@ -21,6 +21,7 @@ public class Crawler {
     
     class ThrottledHandler extends AsyncCompletionHandler<Response>{
         String url;
+        
         public ThrottledHandler(String _url) {
             url = _url;   
         }
@@ -37,8 +38,7 @@ public class Crawler {
             }
             System.out.println("Request completed: " + url);
             return response;
-        }
-                
+        }                
         @Override
         public void onThrowable(Throwable t){
             System.out.println("Failed: " + url);
