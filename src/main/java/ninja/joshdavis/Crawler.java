@@ -113,7 +113,7 @@ public class Crawler {
         }
         client.close();        
     }
-
+    /** Print the current crawler status. */
     public void print_status()
     {
         System.out.println("In queue: " + queue.size());
