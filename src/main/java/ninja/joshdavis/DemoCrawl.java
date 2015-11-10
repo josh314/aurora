@@ -3,7 +3,7 @@ package ninja.joshdavis;
 import java.util.*;
 import java.io.*;
 
-public class TestCrawl {        
+public class DemoCrawl {        
     public static void add_urls_from_file(Vector<String> urls, String filename) {
         // Open file, read line by line and put contents into Vector
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
