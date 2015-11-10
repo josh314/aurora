@@ -30,7 +30,7 @@ public class Crawler {
             Iterable<String> links = scraper.process(html, url);
             for(String link_url: links) {
                 if(link_url != null) {
-                    enqueue_request(link_url);
+                    addRequest(link_url);
                 }
             }
             System.out.println("Request completed: " + url);
@@ -43,27 +43,23 @@ public class Crawler {
         }
     }
     
-    public Crawler(Collection<String> urls, Scraper _scraper) {
-        //Create the client
+    public Crawler(Scraper _scraper) {
+        //Create http client
         AsyncHttpClientConfig.Builder b = new AsyncHttpClientConfig.Builder().addRequestFilter(new ThrottleRequestFilter(100));
         client = new AsyncHttpClient(b.build());
-
         //Set scraper
-        scraper = _scraper;
-        
+        scraper = _scraper;        
         //Init book-keeping data structures
         queue = new ConcurrentLinkedQueue<String>();
-        seen = new HashSet<String>(urls.size());
-        processing = new HashSet<Future<Response>>(urls.size());
-
-        //Fill the to-be-scheduled queue with initial inputs
-        for(String url: urls) {
-            enqueue_request(url);
-        }
+        seen = new HashSet<String>();
+        processing = new HashSet<Future<Response>>();
     }
 
-    //
-    private void enqueue_request(String url) {
+    /**
+     * Add the absolute <code>url</code> to the <code>Crawler</code>'s request 
+     * queue. Ignores urls previously seen by the <code>Crawler</code>. 
+     */
+    public void addRequest(String url) {
         if(!seen.contains(url)) {
             seen.add(url);
             queue.add(url);
