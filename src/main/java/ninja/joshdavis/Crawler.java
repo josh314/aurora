@@ -56,8 +56,8 @@ public class Crawler {
     }
 
     /**
-     * Add the absolute <code>url</code> to the <code>Crawler</code>'s request 
-     * queue. Ignores urls previously seen by the <code>Crawler</code>. 
+     * Add a page to the <code>Crawler</code>'s request queue. Ignores urls previously seen by the <code>Crawler</code>. 
+     * @param url absolute URL to be added. 
      */
     public void addRequest(String url) {
         if(!seen.contains(url)) {
@@ -68,7 +68,7 @@ public class Crawler {
     
     private void request(String url) {
         System.out.println("Requesting: "+url);
-        Future<Response> f = this.client.prepareGet(url).execute(new ThrottledHandler(url));
+        Future<Response> f = client.prepareGet(url).execute(new ThrottledHandler(url));
         processing.add(f);
     }
 
